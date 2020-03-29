@@ -1,6 +1,6 @@
 package com.revature.exception;
 
-public class PasswordRejectedException extends Exception{
+public class PasswordRejectedException extends Exception {
 
   public PasswordRejectedException(String message) {
     super(message);

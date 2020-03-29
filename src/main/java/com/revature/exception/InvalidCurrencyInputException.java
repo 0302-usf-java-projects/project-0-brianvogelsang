@@ -1,4 +1,4 @@
-package com.revature.exceptions;
+package com.revature.exception;
 
 public class InvalidCurrencyInputException extends Exception {
   private static final long serialVersionUID = 1L;

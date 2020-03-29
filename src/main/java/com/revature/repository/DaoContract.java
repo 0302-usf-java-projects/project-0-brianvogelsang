@@ -1,6 +1,7 @@
-package com.revature.config;
+package com.revature.repository;
 
 import java.util.List;
+import com.revature.model.Account;
 
 public interface DaoContract<T, I> {
   
@@ -11,5 +12,6 @@ public interface DaoContract<T, I> {
   T insert(T t);
   boolean updateFunds(T t, Double d);
   boolean delete(T t);
+  boolean updateEmployeeStatus(Account t, boolean b);
 
 }

@@ -1,6 +1,7 @@
 package com.revature.model;
 
 import java.util.Objects;
+import com.revature.service.AccountService;
 
 public class Account implements Comparable<Account> {
 
@@ -9,6 +10,15 @@ public class Account implements Comparable<Account> {
   private String password;
   private String name;
   private double funds;
+  private boolean isEmployee = false;
+
+  public boolean isEmployee() {
+    return isEmployee;
+  }
+
+  public void setEmployee(boolean isEmployee) {
+    this.isEmployee = isEmployee;
+  }
 
   public int getId() {
     return id;
@@ -55,28 +65,28 @@ public class Account implements Comparable<Account> {
 
   }
 
-  public Account(int id, String username, String password, String name, double funds) {
+  public Account(int id, String username, String password, String name, double funds, Boolean isEmployee) {
     super();
     this.id = id;
     this.username = username;
     this.password = password;
     this.name = name;
     this.funds = funds;
+    this.isEmployee = isEmployee;
   }
-  
+
   public Account(String username, String password, String name) {
     super();
     this.username = username;
     this.password = password;
     this.name = name;
-    this.id = 0;
-    this.funds = 0;
   }
 
   @Override
   public String toString() {
-    return "Account [id=" + id + ", username=" + username + ", password=" + password + ", name="
-        + name + ", funds=" + funds + "]\n";
+    return "[id = " + id + ", username = " + username + ", password = " + password + ", name = "
+        + name + ", funds = $" + AccountService.formatFunds(funds) + ", isEmployee =  " + isEmployee
+        + "]\n";
   }
 
   @Override

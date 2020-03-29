@@ -3,27 +3,40 @@ package com.revature.service;
 import static com.revature.controller.BankController.userAccount;
 import java.text.DecimalFormat;
 import java.util.List;
-import com.revature.config.AccountDao;
 import com.revature.controller.BankController;
+import com.revature.exception.InvalidCurrencyInputException;
 import com.revature.exception.PasswordRejectedException;
 import com.revature.exception.UsernameRejectedException;
-import com.revature.exceptions.InvalidCurrencyInputException;
 import com.revature.model.Account;
+import com.revature.repository.AccountDao;
 
 public class AccountService {
 
   public AccountDao adao;
+  private static boolean adminLoggedIn = false;
   private static final int REQUIRED_PASSWORD_LENGTH = 8;
   private static final double MAX_DEPOSIT = 999999999;
   private static final double MAX_BALANCE = 113999999999D;
   private static DecimalFormat df = new DecimalFormat("#.##");
-  private static final String usernamePattern = "\\w+"; // allows letters and numbers, no symbols
+  public static final String usernamePattern = "\\w+"; // allows letters and numbers, no symbols
   private static final String currencyPattern = "\\d+"; // allows only numbers
 
   {
     adao = new AccountDao();
   }
-  
+
+  public boolean getAdminLoggedIn() {
+    return adminLoggedIn;
+  }
+
+  public void setAdminLoggedIn() {
+    adminLoggedIn = true;
+  }
+
+  public void setAdminLoggedOut() {
+    adminLoggedIn = false;
+  }
+
   public double getMaxBalance() {
     return MAX_BALANCE;
   }
@@ -54,7 +67,6 @@ public class AccountService {
   }
 
   public boolean validateUsername(String s) throws UsernameRejectedException {
-
     if (!(s.matches(usernamePattern))) {
       throw new UsernameRejectedException("You cannot use whitespace or symbols in your username.");
     } else if (s.length() < 4) {
@@ -69,7 +81,6 @@ public class AccountService {
   }
 
   public boolean validatePassword(String s) throws PasswordRejectedException {
-
     if (s.length() < 8) {
       throw new PasswordRejectedException("Passwords must be at least 8 characters in length.");
     } else if (s.length() > 64) {
@@ -80,7 +91,6 @@ public class AccountService {
   }
 
   public boolean validateCurrencyInput(String s) throws InvalidCurrencyInputException {
-
     if (!(s.matches(currencyPattern))) {
       throw new InvalidCurrencyInputException("Please only enter digits.");
     } else if (getByUsername(userAccount.getUsername()).getFunds() < Double.parseDouble(s)) {
@@ -93,7 +103,8 @@ public class AccountService {
     if (!(s.matches(currencyPattern))) {
       throw new InvalidCurrencyInputException("Please only enter digits.");
     } else if (Double.parseDouble(s) > MAX_DEPOSIT) {
-      throw new InvalidCurrencyInputException("That amount is too high...\nOnly add numbers less than one billion please.");
+      throw new InvalidCurrencyInputException(
+          "That amount is too high...\nOnly add numbers less than one billion please.");
     }
     return true;
   }
@@ -111,12 +122,12 @@ public class AccountService {
     double result = t.getFunds() + d;
     return adao.updateFunds(t, result);
   }
-  
+
   public String displayFunds() {
     return df.format(getByUsername(userAccount.getUsername()).getFunds());
   }
-  
-  public String formatFunds(Double d) {
+
+  public static String formatFunds(Double d) {
     return df.format(d);
   }
 
@@ -124,5 +135,13 @@ public class AccountService {
     subtractFunds(user, amount);
     addFunds(target, amount);
     return true;
+  }
+
+  public void promoteEmployee(Account a) {
+    adao.updateEmployeeStatus(a, true);
+  }
+
+  public void demoteEmployee(Account a) {
+    adao.updateEmployeeStatus(a, false);
   }
 }

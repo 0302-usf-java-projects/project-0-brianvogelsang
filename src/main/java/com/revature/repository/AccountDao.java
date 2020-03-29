@@ -1,4 +1,4 @@
-package com.revature.config;
+package com.revature.repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +19,7 @@ public class AccountDao implements DaoContract<Account, Integer> {
       List<Account> list = new ArrayList<>();
       while (rs.next()) {
         list.add(new Account(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
-            rs.getDouble(5)));
+            rs.getDouble(5), rs.getBoolean(6)));
       }
       return list;
     } catch (SQLException e) {
@@ -31,23 +31,22 @@ public class AccountDao implements DaoContract<Account, Integer> {
   @Override
   public Account findById(Integer id) {
     try (Connection conn = ConnectionUtil.connect()) {
-      String sql = "select * from accounts where id =?";
+      String sql = "select * from accounts where id = ?";
       PreparedStatement ps = conn.prepareStatement(sql);
       ps.setInt(1, id);
       ResultSet rs = ps.executeQuery();
       rs.next();
       return new Account(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
-          rs.getDouble(5));
-
+          rs.getDouble(5), rs.getBoolean(6));
     } catch (SQLException e) {
-      e.printStackTrace();
+      System.out.println("ID does not exist.");
     }
     return null;
   }
 
   @Override
   public Account findByDouble(double d) {
-    // TODO Auto-generated method stub
+    // NOT USED
     return null;
   }
 
@@ -60,9 +59,8 @@ public class AccountDao implements DaoContract<Account, Integer> {
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
         return new Account(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4),
-            rs.getDouble(5));
+            rs.getDouble(5), rs.getBoolean(6));
       }
-
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -78,7 +76,6 @@ public class AccountDao implements DaoContract<Account, Integer> {
       ps.setString(2, t.getPassword());
       ps.setString(3, t.getName());
       ps.execute();
-
       return findByString(t.getUsername());
     } catch (SQLException e) {
       e.printStackTrace();
@@ -93,7 +90,6 @@ public class AccountDao implements DaoContract<Account, Integer> {
       PreparedStatement ps = conn.prepareStatement(sql);
       ps.setString(1, t.getUsername());
       ps.execute();
-
       return true;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -109,7 +105,6 @@ public class AccountDao implements DaoContract<Account, Integer> {
       ps.setDouble(1, d);
       ps.setString(2, t.getUsername());
       ps.execute();
-
       return true;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -117,4 +112,18 @@ public class AccountDao implements DaoContract<Account, Integer> {
     return false;
   }
 
+  @Override
+  public boolean updateEmployeeStatus(Account t, boolean b) {
+    try (Connection conn = ConnectionUtil.connect()) {
+      String sql = "update accounts set isEmployee = ? where username = ?";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.setBoolean(1, b);
+      ps.setString(2, t.getUsername());
+      ps.execute();
+      return true;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
 }
