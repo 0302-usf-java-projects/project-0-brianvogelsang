@@ -1,13 +1,14 @@
 package com.revature;
 
-/** 
- * Create an instance of your controller and launch your application.
- * 
- * Try not to have any logic at all on this class.
- */
+import com.revature.ui.AccountUi;
+
 public class Main {
 
-	public static void main(String[] args) {
-
-	}
+  public static void main(String[] args) {
+    
+      AccountUi ui = new AccountUi();
+      ui.startBank();
+      //ui.debug();
+    
+  }
 }
