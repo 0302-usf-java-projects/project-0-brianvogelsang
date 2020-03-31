@@ -9,6 +9,7 @@ public class Main {
   public static void main(String[] args) {
 
     AccountUi ui = new AccountUi();
+    Main.log.trace("Bank Application started.");
     ui.startBank();
   }
 }

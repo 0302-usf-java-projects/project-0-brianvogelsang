@@ -16,7 +16,7 @@ public class AccountUi {
   private AccountService as = new AccountService();
 
   public void debug() {
-    Main.log.debug("Debug menu entered.");
+    Main.log.trace("Debug menu entered.");
   }
 
   public void startBank() {
@@ -32,7 +32,7 @@ public class AccountUi {
   }
 
   public void logMenu() {
-    Main.log.info("Login Menu Entered.");
+    Main.log.trace("Login Menu Entered.");
     clearScreen();
     System.out.println("Welcome to BV Credit Union:");
     System.out.println("----------------------------");
@@ -65,7 +65,7 @@ public class AccountUi {
       case "#0":
       case "EXIT":
         System.out.println("PROGRAM TERMINATED");
-        Main.log.info("Bank Application exited.");
+        Main.log.trace("Bank Application exited.");
         System.exit(0);
       case "debug":
         debug();
@@ -75,7 +75,7 @@ public class AccountUi {
   }
 
   private void viewHelpMenu() {
-    Main.log.info("Help Menu logged in.");
+    Main.log.trace("Help Menu logged in.");
     clearScreen();
     System.out.println("Welcome to BV Credit Union:");
     System.out.println("---------------------------");
@@ -98,7 +98,7 @@ public class AccountUi {
     switch (password) {
       case "admin":
         as.setAdminLoggedIn();
-        Main.log.info("Bank Manager logged in.");
+        Main.log.trace("Bank Manager logged in.");
         break;
       default:
         notRecognized();
@@ -121,6 +121,7 @@ public class AccountUi {
     System.out.println("---------------------------------------");
     System.out.println("#8 VIEW LOGS");
     System.out.println("#9 DELETE LOGS");
+    System.out.println("#10 VIEW VERBOSE LOGS");
     System.out.println("\n#0  LOGOUT FROM ADMIN");
     String choice = scanner.nextLine();
     switch (choice) {
@@ -169,27 +170,53 @@ public class AccountUi {
       case "#9":
         deleteManagerLogs();
         break;
+      case "10":
+      case "#10":
+        viewManagerLogsVerbose();
+        break;
       case "0":
       case "#0":
       case "EXIT":
         as.setAdminLoggedOut();
-        Main.log.info("Bank Manager logged out.");
+        Main.log.trace("Bank Manager logged out.");
         break;
       default:
         notRecognized();
     }
   }
 
-  private void viewManagerLogs() {
+  private void viewManagerLogsVerbose() {
     Scanner logScanner;
     clearScreen();
     System.out.println("Manager Logs");
     System.out.println("------------------------");
-    Main.log.info("Viewed Manager Logs.");
+    Main.log.trace("Viewed Manager Logs.");
     try {
       logScanner = new Scanner(new File("logs/Logs.log"));
       while (logScanner.hasNextLine()) {
         System.out.println(logScanner.nextLine());
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+    System.out.println("\n\nPress any key to return.");
+    wait.nextLine();
+  }
+
+  private void viewManagerLogs() {
+    Scanner logScannerVerbose;
+    clearScreen();
+    System.out.println("Manager Logs");
+    System.out.println("------------------------");
+    Main.log.trace("Viewed Manager Logs.");
+    try {
+      logScannerVerbose = new Scanner(new File("logs/Logs.log"));
+      while (logScannerVerbose.hasNextLine()) {
+        String output = logScannerVerbose.nextLine().toString();
+
+        if (output.contains(" INFO ")) {
+          System.out.println(output);
+        }
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -376,7 +403,7 @@ public class AccountUi {
       case "0":
       case "#0":
         setLogout();
-        Main.log.info(userAccount.getUsername() + " logged out.");
+        Main.log.trace(userAccount.getUsername() + " logged out.");
         userAccount = null;
         break;
       default:
@@ -534,7 +561,7 @@ public class AccountUi {
       String passwordInput = scanner.nextLine();
       if (as.authenticate(usernameInput, passwordInput)) {
         loginSuccess();
-        Main.log.info(userAccount.getUsername() + " logged in.");
+        Main.log.trace(userAccount.getUsername() + " logged in.");
       }
       if (!getLogStatus()) {
         userAccount = null;
