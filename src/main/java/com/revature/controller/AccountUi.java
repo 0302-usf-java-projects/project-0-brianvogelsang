@@ -16,7 +16,7 @@ public class AccountUi {
   private AccountService as = new AccountService();
 
   public void debug() {
-    // TEST CODE
+    Main.log.debug("Debug menu entered.");
   }
 
   public void startBank() {
@@ -65,7 +65,10 @@ public class AccountUi {
       case "#0":
       case "EXIT":
         System.out.println("PROGRAM TERMINATED");
+        Main.log.info("Bank Application exited.");
         System.exit(0);
+      case "debug":
+        debug();
       default:
         notRecognized();
     }
@@ -81,6 +84,8 @@ public class AccountUi {
     System.out.println("account usernames and passwords.\n");
     System.out.println("Usernames must be between 3 and 32 characters. No symbols or spaces.");
     System.out.println("Passwords must be between 8 and 65 characters.\n");
+    System.out.println("Customers can search for public accounts, but cannot see balance or passwords.");
+    System.out.println("Employee level users can see all user information.\n");
     System.out.println("Press any key to return...");
     wait.nextLine();
   }
@@ -109,7 +114,7 @@ public class AccountUi {
     System.out.println("#3 SET TARGET ACCOUNT AS EMPLOYEE");
     System.out.println("#4 REMOVE TARGET ACCOUNT AS EMPLOYEE");
     System.out.println("---------------------------------------");
-    // System.out.println("#5 VIEW TRANSACTIONS OF TARGET ACCOUNT");////////////////////TODO
+    System.out.println("#5 VIEW HISTORY OF TARGET ACCOUNT");
     System.out.println("#6 DELETE TARGET ACCOUNT");
     System.out.println("---------------------------------------");
     System.out.println("#7 VIEW LOGS");
@@ -142,7 +147,8 @@ public class AccountUi {
         break;
       case "5":
       case "#5":
-        notRecognized();
+        viewMyLog();
+        userAccount = null;
         break;
       case "6":
       case "#6":
@@ -173,6 +179,7 @@ public class AccountUi {
     clearScreen();
     System.out.println("Manager Logs");
     System.out.println("------------------------");
+    Main.log.info("Viewed Manager Logs.");
     try {
       logScanner = new Scanner(new File("logs/Logs.log"));
       while (logScanner.hasNextLine()) {
@@ -212,6 +219,7 @@ public class AccountUi {
   }
 
   private void viewDemoteEmployee() {
+    viewAccounts();
     Account a = findAccount();
     if (a == null) {
       return;
@@ -229,6 +237,7 @@ public class AccountUi {
       case "Y":
       case "y":
         as.demoteEmployee(a);
+        Main.log.info(a.getUsername() + " is no longer an Employee.");
         System.out.println("Success! " + a.getName() + " is no longer an Employee!");
         System.out.println("Press any key to continue...");
         wait.nextLine();
@@ -240,6 +249,7 @@ public class AccountUi {
   }
 
   private void viewPromoteEmployee() {
+    viewAccounts();
     Account a = findAccount();
     if (a == null) {
       return;
@@ -258,6 +268,7 @@ public class AccountUi {
       case "y":
 
         as.promoteEmployee(a);
+        Main.log.info(a.getUsername() + " is promoted to Employee.");
         System.out.println("Success! " + a.getName() + " is now an Employee!");
         System.out.println("Press any key to continue...");
         wait.nextLine();
@@ -269,22 +280,22 @@ public class AccountUi {
   }
 
   public void menu() {
-    Main.log.info(userAccount.getName() + " logged in.");
     clearScreen();
     System.out.println("Welcome, " + userAccount.getName() + ".");
     System.out.println("-----------------------------------");
-    System.out.println("Your balance is $" + as.displayFunds());
+    System.out.println("Your balance is " + as.displayFunds());
     System.out.println("-----------------------------------");
     System.out.println("#1  VIEW BALANCE");
     System.out.println("#2  VIEW TRANSACTION HISTORY");
-    System.out.println("#3  WITHDRAW");
-    System.out.println("#4  DEPOSIT");
-    System.out.println("#5  TRANSFER");
-    System.out.println("#6  DELETE ACCOUNT");
+    System.out.println("#3  VIEW FRIEND LIST");
+    System.out.println("#4  WITHDRAW");
+    System.out.println("#5  DEPOSIT");
+    System.out.println("#6  TRANSFER");
+    System.out.println("#7  DELETE MY ACCOUNT");
     if (userAccount.isEmployee()) {
       System.out.println("\n--Employee Options--");
-      System.out.println("#7 VIEW ACCOUNTS");
-      System.out.println("#8 LOOKUP ACCOUNT");
+      System.out.println("#8 VIEW ACCOUNTS");
+      System.out.println("#9 LOOKUP ACCOUNT");
       System.out.println("---------------------");
     }
     System.out.println("\n#0  LOGOUT");
@@ -296,28 +307,33 @@ public class AccountUi {
         break;
       case "2":
       case "#2":
-        System.out.println("Feature not yet implemented");///////////////////////////////////// TODO
-        System.out.println("Press any key to return...");
-        wait.nextLine();
+        viewMyLog();
         break;
       case "3":
       case "#3":
-        viewWithdraw();
+        clearScreen();
+        viewFriendsList();
+        System.out.println("Press any key to return...");
+        wait.nextLine();
         break;
       case "4":
       case "#4":
-        viewDeposit();
+        viewWithdraw();
         break;
       case "5":
       case "#5":
-        viewTransfer();
+        viewDeposit();
         break;
-      case "#6":
       case "6":
-        uiDeleteAccount();
+      case "#6":
+        viewTransfer();
         break;
       case "#7":
       case "7":
+        uiDeleteAccount();
+        break;
+      case "#8":
+      case "8":
         if (userAccount.isEmployee()) {
           viewAccounts();
           System.out.println("Press any key to continue...");
@@ -326,8 +342,8 @@ public class AccountUi {
           notRecognized();
         }
         break;
-      case "8":
-      case "#8":
+      case "9":
+      case "#9":
         if (userAccount.isEmployee()) {
           Account a = findAccount();
           if (a != null) {
@@ -342,12 +358,43 @@ public class AccountUi {
       case "0":
       case "#0":
         setLogout();
-        Main.log.info(userAccount.getName() + " logged out.");
+        Main.log.info(userAccount.getUsername() + " logged out.");
         userAccount = null;
         break;
       default:
         notRecognized();
     }
+  }
+
+  private void viewMyLog() {
+    Scanner myScanner;
+    clearScreen();
+    if (userAccount == null) {
+      viewAccounts();
+      System.out.println("Choose an account to view.");
+      userAccount = findAccount();
+      if (userAccount == null) {
+        return;
+      }
+      System.out.println(userAccount);
+    }
+    System.out.println("History of " + userAccount.getUsername());
+    System.out.println("------------------------");
+    Main.log.info(userAccount.getUsername() + " viewed transaction history.");
+    try {
+      myScanner = new Scanner(new File("logs/Logs.log"));
+      while (myScanner.hasNextLine()) {
+        String output = myScanner.nextLine().toString();
+
+        if (output.contains(userAccount.getUsername())) {
+          System.out.println(output);
+        }
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+    System.out.println("\n\nPress any key to return.");
+    wait.nextLine();
   }
 
   public void viewAccounts() {
@@ -468,6 +515,7 @@ public class AccountUi {
       String passwordInput = scanner.nextLine();
       if (as.authenticate(usernameInput, passwordInput)) {
         loginSuccess();
+        Main.log.info(userAccount.getUsername() + " logged in.");
       }
       if (!getLogStatus()) {
         userAccount = null;
@@ -497,7 +545,7 @@ public class AccountUi {
     clearScreen();
     System.out.println("LOGIN SUCCESS!\n");
     System.out.println("Welcome, " + userAccount.getName());
-    Main.log.info(userAccount.getName() + " created account.");
+    Main.log.info(userAccount.getUsername() + " created account.");
     System.out.println("\n\nPress any key to continue...");
     wait.nextLine();
   }
@@ -527,7 +575,7 @@ public class AccountUi {
               System.out.println("Deleting account...");
               if (as.delete(userAccount.getUsername())) {
                 setLogout();
-                Main.log.info(userAccount.getName() + " account deleted.");
+                Main.log.info(userAccount.getUsername() + " account was deleted.");
                 userAccount = null;
               }
             }
@@ -550,17 +598,17 @@ public class AccountUi {
   public void viewBalance() {
     clearScreen();
     System.out.println("-----------------------------------");
-    System.out.println("Your current balance is $" + as.displayFunds());
+    System.out.println("Your current balance is " + as.displayFunds());
     System.out.println("-----------------------------------");
     System.out.println("Press any key to return...");
-    Main.log.info(userAccount.getName() + " viewed balance: " + as.displayFunds());
+    Main.log.info(userAccount.getUsername() + " viewed balance: " + as.displayFunds());
     wait.nextLine();
   }
 
   public void viewWithdraw() {
     clearScreen();
     System.out.println("-----------------------------------");
-    System.out.println("Your current balance is $" + as.displayFunds());
+    System.out.println("Your current balance is " + as.displayFunds());
     System.out.println("-----------------------------------");
     System.out.println("Welcome to ATM Withdraw App");
     System.out.println("How much money would you like to withdraw?");
@@ -577,7 +625,7 @@ public class AccountUi {
     System.out.println("Dispensing $" + input + " as cash...");
     as.subtractFunds(as.getByUsername(userAccount.getUsername()), Double.parseDouble(input));
     System.out.println("Done!");
-    Main.log.info(userAccount.getName() + " withdrew " + input);
+    Main.log.info(userAccount.getUsername() + " withdrew $" + input);
     System.out.println("Press any key to return...");
     wait.nextLine();
     return;
@@ -592,7 +640,7 @@ public class AccountUi {
       return;
     }
     System.out.println("-----------------------------------");
-    System.out.println("Your current balance is $" + as.displayFunds());
+    System.out.println("Your current balance is " + as.displayFunds());
     System.out.println("-----------------------------------");
     System.out.println("Welcome to ATM Deposit App");
     System.out.println("Please insert cash.");
@@ -610,16 +658,24 @@ public class AccountUi {
     System.out.println("Adding $" + input + " to your account....");
     as.addFunds(as.getByUsername(userAccount.getUsername()), Double.parseDouble(input));
     System.out.println("Done!");
-    Main.log.info(userAccount.getName() + " deposited " + input);
+    Main.log.info(userAccount.getUsername() + " deposited $" + input);
     System.out.println("Press any key to return...");
     wait.nextLine();
     return;
   }
 
+  public void viewFriendsList() {
+    System.out.println("Friends List:");
+    for (Account a : as.getAllAccounts()) {
+      System.out.println(a.toStringCasual());
+    }
+  }
+
   public void viewTransfer() {
     clearScreen();
+    viewFriendsList();
     System.out.println("-----------------------------------");
-    System.out.println("Your current balance is $" + as.displayFunds());
+    System.out.println("Your current balance is " + as.displayFunds());
     System.out.println("-----------------------------------");
     System.out.println("Welcome to Funds Transfer App");
     System.out.println("Enter the USERNAME of the account for your transfer.");
@@ -651,7 +707,7 @@ public class AccountUi {
     }
 
     double amount = Double.parseDouble(amountString);
-    System.out.println("Confirm transfer of $" + AccountService.formatFunds(amount) + " to "
+    System.out.println("Confirm transfer of " + AccountService.formatFunds(amount) + " to "
         + target.getName() + "?");
     System.out.println("(Y/N)?");
     String answer = scanner.nextLine();
@@ -660,7 +716,8 @@ public class AccountUi {
       case "y":
         as.transferFunds(as.getByUsername(userAccount.getUsername()), target, amount);
         System.out.println("Transfer complete.");
-        Main.log.info(userAccount.getName() + " transferred " + amount + " to " + target.getName());
+        Main.log.info(
+            userAccount.getUsername() + " transferred $" + amount + " to " + target.getUsername());
         System.out.println("Press any key to return...");
         wait.nextLine();
         break;

@@ -124,11 +124,11 @@ public class AccountService {
   }
 
   public String displayFunds() {
-    return df.format(getByUsername(userAccount.getUsername()).getFunds());
+    return "$" + df.format(getByUsername(userAccount.getUsername()).getFunds());
   }
 
   public static String formatFunds(Double d) {
-    return df.format(d);
+    return "$" + df.format(d);
   }
 
   public boolean transferFunds(Account user, Account target, double amount) {

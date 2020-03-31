@@ -88,6 +88,11 @@ public class Account implements Comparable<Account> {
         + name + ", funds = $" + AccountService.formatFunds(funds) + ", isEmployee =  " + isEmployee
         + "]\n";
   }
+  
+  public String toStringCasual() {
+    return "[" + id + ", " + username + " "
+        + name + "]";
+  }
 
   @Override
   public boolean equals(Object obj) {

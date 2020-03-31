@@ -8,9 +8,7 @@ public class Main {
 
   public static void main(String[] args) {
 
-    log.info("Bank Application Started");
     AccountUi ui = new AccountUi();
     ui.startBank();
-    log.info("Bank Application Ended");
   }
 }
