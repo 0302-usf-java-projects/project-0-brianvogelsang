@@ -85,7 +85,7 @@ public class Account implements Comparable<Account> {
   @Override
   public String toString() {
     return "[id = " + id + ", username = " + username + ", password = " + password + ", name = "
-        + name + ", funds = $" + AccountService.formatFunds(funds) + ", isEmployee =  " + isEmployee
+        + name + ", funds = " + AccountService.formatFunds(funds) + ", isEmployee =  " + isEmployee
         + "]\n";
   }
   

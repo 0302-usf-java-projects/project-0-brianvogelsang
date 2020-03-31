@@ -84,7 +84,8 @@ public class AccountUi {
     System.out.println("account usernames and passwords.\n");
     System.out.println("Usernames must be between 3 and 32 characters. No symbols or spaces.");
     System.out.println("Passwords must be between 8 and 65 characters.\n");
-    System.out.println("Customers can search for public accounts, but cannot see balance or passwords.");
+    System.out
+        .println("Customers can search for public accounts, but cannot see balance or passwords.");
     System.out.println("Employee level users can see all user information.\n");
     System.out.println("Press any key to return...");
     wait.nextLine();
@@ -116,9 +117,10 @@ public class AccountUi {
     System.out.println("---------------------------------------");
     System.out.println("#5 VIEW HISTORY OF TARGET ACCOUNT");
     System.out.println("#6 DELETE TARGET ACCOUNT");
+    System.out.println("#7 TRANSFER FROM ONE ACCOUNT TO ANOTHER");
     System.out.println("---------------------------------------");
-    System.out.println("#7 VIEW LOGS");
-    System.out.println("#8 DELETE LOGS");
+    System.out.println("#8 VIEW LOGS");
+    System.out.println("#9 DELETE LOGS");
     System.out.println("\n#0  LOGOUT FROM ADMIN");
     String choice = scanner.nextLine();
     switch (choice) {
@@ -157,10 +159,14 @@ public class AccountUi {
         break;
       case "7":
       case "#7":
-        viewManagerLogs();
+        viewTransfer();
         break;
       case "8":
       case "#8":
+        viewManagerLogs();
+        break;
+      case "9":
+      case "#9":
         deleteManagerLogs();
         break;
       case "0":
@@ -287,7 +293,7 @@ public class AccountUi {
     System.out.println("-----------------------------------");
     System.out.println("#1  VIEW BALANCE");
     System.out.println("#2  VIEW TRANSACTION HISTORY");
-    System.out.println("#3  VIEW FRIEND LIST");
+    System.out.println("#3  VIEW PUBLIC LIST");
     System.out.println("#4  WITHDRAW");
     System.out.println("#5  DEPOSIT");
     System.out.println("#6  TRANSFER");
@@ -296,6 +302,7 @@ public class AccountUi {
       System.out.println("\n--Employee Options--");
       System.out.println("#8 VIEW ACCOUNTS");
       System.out.println("#9 LOOKUP ACCOUNT");
+      System.out.println("#10 LOOKUP ACCOUNT HISTORY");
       System.out.println("---------------------");
     }
     System.out.println("\n#0  LOGOUT");
@@ -355,6 +362,17 @@ public class AccountUi {
           notRecognized();
         }
         break;
+      case "10":
+      case "#10":
+        if (userAccount.isEmployee()) {
+          Account a = userAccount;
+          userAccount = null;
+          viewMyLog();
+          userAccount = a;
+        } else {
+          notRecognized();
+        }
+        break;
       case "0":
       case "#0":
         setLogout();
@@ -369,6 +387,7 @@ public class AccountUi {
   private void viewMyLog() {
     Scanner myScanner;
     clearScreen();
+
     if (userAccount == null) {
       viewAccounts();
       System.out.println("Choose an account to view.");
@@ -665,7 +684,7 @@ public class AccountUi {
   }
 
   public void viewFriendsList() {
-    System.out.println("Friends List:");
+    System.out.println("PUBLIC LIST:");
     for (Account a : as.getAllAccounts()) {
       System.out.println(a.toStringCasual());
     }
@@ -673,12 +692,23 @@ public class AccountUi {
 
   public void viewTransfer() {
     clearScreen();
-    viewFriendsList();
-    System.out.println("-----------------------------------");
-    System.out.println("Your current balance is " + as.displayFunds());
-    System.out.println("-----------------------------------");
+    if (userAccount == null) {
+      viewAccounts();
+      System.out.println("Select an account to start transfer.");
+      userAccount = findAccount();
+      if (userAccount == null) {
+        return;
+      }
+      System.out.println(userAccount);
+    }
+    if (!as.getAdminLoggedIn()) {
+      viewFriendsList();
+      System.out.println("-----------------------------------");
+      System.out.println("Your current balance is " + as.displayFunds());
+      System.out.println("-----------------------------------");
+    }
     System.out.println("Welcome to Funds Transfer App");
-    System.out.println("Enter the USERNAME of the account for your transfer.");
+    System.out.println("Enter the USERNAME of the account to receive funds.");
     String username = scanner.nextLine().toUpperCase();
     if (username.equals(userAccount.getUsername())) {
       System.out.println("You cannot transfer to yourself.");
@@ -689,7 +719,7 @@ public class AccountUi {
     }
     Account target = as.getByUsername(username);
     if (target == null) {
-      System.out.println("Username not found.");
+      System.out.println("USERNAME not found.");
       System.out.println("Process aborted.");
       System.out.println("Press any key to return...");
       wait.nextLine();
