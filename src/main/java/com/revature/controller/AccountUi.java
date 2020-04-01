@@ -316,6 +316,8 @@ public class AccountUi {
     clearScreen();
     System.out.println("Welcome, " + userAccount.getName() + ".");
     System.out.println("-----------------------------------");
+    System.out.println("              ID: " + userAccount.getId());
+    System.out.println("");
     System.out.println("Your balance is " + as.displayFunds());
     System.out.println("-----------------------------------");
     System.out.println("#1  VIEW BALANCE");
@@ -444,7 +446,9 @@ public class AccountUi {
   }
 
   public void viewAccounts() {
-    System.out.println(as.getAllAccounts());
+    for (Account a : as.getAllAccounts()) {
+      System.out.println(a);
+    }
   }
 
   public void createAccount() {
@@ -490,6 +494,7 @@ public class AccountUi {
     BankController.userAccount = as.getByUsername(a.getUsername());
     if (as.authenticate(username, password)) {
       loginSuccess();
+      Main.log.trace(userAccount.getUsername() + " created account.");
     }
     if (!getLogStatus()) {
       userAccount = null;
@@ -591,7 +596,6 @@ public class AccountUi {
     clearScreen();
     System.out.println("LOGIN SUCCESS!\n");
     System.out.println("Welcome, " + userAccount.getName());
-    Main.log.trace(userAccount.getUsername() + " created account.");
     System.out.println("\n\nPress any key to continue...");
     wait.nextLine();
   }
@@ -668,10 +672,12 @@ public class AccountUi {
       return;
     }
     clearScreen();
-    System.out.println("Dispensing $" + input + " as cash...");
+    System.out.println(
+        "Dispensing " + AccountService.formatFunds(Double.parseDouble(input)) + " as cash...");
     as.subtractFunds(as.getByUsername(userAccount.getUsername()), Double.parseDouble(input));
     System.out.println("Done!");
-    Main.log.trace(userAccount.getUsername() + " withdrew $" + input);
+    Main.log.trace(userAccount.getUsername() + " withdrew "
+        + AccountService.formatFunds(Double.parseDouble(input)));
     System.out.println("Press any key to return...");
     wait.nextLine();
     return;
@@ -701,10 +707,12 @@ public class AccountUi {
       return;
     }
     clearScreen();
-    System.out.println("Adding $" + input + " to your account....");
+    System.out.println("Adding " + AccountService.formatFunds(Double.parseDouble(input))
+        + " to your account....");
     as.addFunds(as.getByUsername(userAccount.getUsername()), Double.parseDouble(input));
     System.out.println("Done!");
-    Main.log.trace(userAccount.getUsername() + " deposited $" + input);
+    Main.log.trace(userAccount.getUsername() + " deposited "
+        + AccountService.formatFunds(Double.parseDouble(input)));
     System.out.println("Press any key to return...");
     wait.nextLine();
     return;
@@ -712,6 +720,8 @@ public class AccountUi {
 
   public void viewFriendsList() {
     System.out.println("PUBLIC LIST:");
+    System.out.println("[ID, USERNAME, ALIAS]");
+    System.out.println("----------------------");
     for (Account a : as.getAllAccounts()) {
       System.out.println(a.toStringCasual());
     }
@@ -773,8 +783,8 @@ public class AccountUi {
       case "y":
         as.transferFunds(as.getByUsername(userAccount.getUsername()), target, amount);
         System.out.println("Transfer complete.");
-        Main.log.trace(
-            userAccount.getUsername() + " transferred $" + amount + " to " + target.getUsername());
+        Main.log.trace(userAccount.getUsername() + " transferred "
+            + AccountService.formatFunds(amount) + " to " + target.getUsername());
         System.out.println("Press any key to return...");
         wait.nextLine();
         break;

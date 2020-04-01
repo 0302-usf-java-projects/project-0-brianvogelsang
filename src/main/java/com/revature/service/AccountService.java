@@ -17,7 +17,7 @@ public class AccountService {
   private static final int REQUIRED_PASSWORD_LENGTH = 8;
   private static final double MAX_DEPOSIT = 999999999;
   private static final double MAX_BALANCE = 113999999999D;
-  private static DecimalFormat df = new DecimalFormat("#.##");
+  private static DecimalFormat df = new DecimalFormat("###,###,###,###,###.##");
   public static final String usernamePattern = "\\w+"; // allows letters and numbers, no symbols
   private static final String currencyPattern = "\\d+"; // allows only numbers
 
